@@ -1,0 +1,24 @@
+{
+  "name": "web-bluetooth-myo",
+  "version": "1.0.0",
+  "description": "## Material",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charliegerard/web-bluetooth-myo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charliegerard/web-bluetooth-myo/issues"
+  },
+  "homepage": "https://github.com/charliegerard/web-bluetooth-myo#readme",
+  "dependencies": {
+    "bleno": "^0.4.1",
+    "express": "^4.14.1",
+    "faye": "^1.2.4"
+  }
+}

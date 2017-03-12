@@ -1,0 +1,11 @@
+body{
+  font-family: 'Open Sans', sans-serif;
+}
+
+#connect{
+  padding: 0.5em 1em;
+  box-shadow: none;
+  background: white;
+  border: 1px solid black;
+  cursor: pointer;
+}
