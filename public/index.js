@@ -16,6 +16,10 @@ const services = {
   batteryService: {
     name: 'battery service',
     code: 0x180f
+  },
+  classifierService: {
+    name: 'classifier service',
+    code: 'd5060003-a904-deb9-4748-2c7f4a124842'
   }
 }
 
@@ -31,6 +35,10 @@ const characteristics = {
   batteryLevelCharacteristic: {
     name: 'battery level characteristic',
     code: 0x2a19
+  },
+  classifierEventCharacteristic: {
+    name: 'classifier event characteristic',
+    code: 'd5060103-a904-deb9-4748-2c7f4a124842'
   }
 }
 
@@ -47,7 +55,8 @@ window.onload = function(){
         {
           services: [services.batteryService.code, services.imuDataService.code, services.controlService.code, services.emgDataService.code ]
         }
-      ]
+      ],
+      optionalServices: [services.classifierService.code]
     })
     .then(device => {
       console.log('Device discovered', device.name);
@@ -57,8 +66,9 @@ window.onload = function(){
       console.log('server device: '+ Object.keys(server.device));
 
       standardServer = server;
-      getService([services.controlService, services.imuDataService], [characteristics.commandCharacteristic, characteristics.imuDataCharacteristic], server);
-      // return getService([services.batteryService.code], [characteristics.batteryLevelCharacteristic.code], server);
+      // getService([services.controlService, services.imuDataService], [characteristics.commandCharacteristic, characteristics.imuDataCharacteristic], server);
+      getService([services.controlService, services.classifierService], [characteristics.commandCharacteristic, characteristics.classifierEventCharacteristic], server);
+      // getService([services.batteryService], [characteristics.batteryLevelCharacteristic], server);
 
       //Test EMG Data Service
       // return server.getPrimaryService('d5060005-a904-deb9-4748-2c7f4a124842');
@@ -142,22 +152,9 @@ window.onload = function(){
     console.log('orientation: ', orientationW);
   }
 
-  // var notificationsButton = document.getElementById('start');
-  //
-  // notificationsButton.onclick = function(){
-  //   console.log('Starting IMU Data Notifications...');
-  //   batteryLevelCharacteristic.startNotifications()
-  //   .then(char => {
-  //     batteryLevelCharacteristic.addEventListener('characteristicvaluechanged',
-  //                                   handleBatteryLevelChanged);
-  //     console.log('> Notifications started');
-  //     document.querySelector('#start').disabled = true;
-  //     document.querySelector('#stop').disabled = false;
-  //   })
-  //   .catch(error => {
-  //     console.log('Argh! ' + error);
-  //   });
-  // }
+  function handlePoseChanged(event){
+    console.log('getting here', event);
+  }
 
 
   function getService(requestedServices, requestedCharacteristics, server){
@@ -172,11 +169,11 @@ window.onload = function(){
   }
 
   function getBatteryData(service, reqChar, server){
-    return server.getPrimaryService(service)
+    return server.getPrimaryService(service.code)
     .then(service => {
       console.log('getting battery service');
-      if(reqChar[0] === characteristics.batteryLevelCharacteristic.code){
-        getBatteryLevel(reqChar[0], service)
+      if(reqChar[0].code === characteristics.batteryLevelCharacteristic.code){
+        getBatteryLevel(reqChar[0].code, service)
       }
     })
   }
@@ -210,16 +207,25 @@ window.onload = function(){
     })
     .then(characteristic => {
       console.log('getting characteristic: ', requestedCharacteristics[0].name);
-      let commandValue = new Uint8Array([0x01,3,0x02,0x01,0x01]);
+      // return new Buffer([0x01,3,emg_mode,imu_mode,classifier_mode]);
+      let commandValue = new Uint8Array([0x01,3,0x02,0x03,0x01]);
       characteristic.writeValue(commandValue);
     })
     .then(_ => {
       console.log('getting service: ', requestedServices[1].name);
-      return standardServer.getPrimaryService(IMUService)
+      if(requestedServices[1].code === services.imuDataService.code){
+        getIMUData(requestedServices[1], requestedCharacteristics[1], server)
+      } else if(requestedServices[1].code === services.classifierService.code){
+        getClassifierData(requestedServices[1], requestedCharacteristics[1], server)
+      }
     })
+  }
+
+  function getIMUData(service, characteristic, server){
+    return server.getPrimaryService(service.code)
     .then(newService => {
-      console.log('getting characteristic: ', requestedCharacteristics[1].name);
-      return newService.getCharacteristic(IMUDataChar)
+      console.log('getting characteristic: ', characteristic.name);
+      return newService.getCharacteristic(characteristic.code)
     })
     .then(char => {
       char.startNotifications().then(res => {
@@ -227,4 +233,19 @@ window.onload = function(){
       })
     })
   }
+
+  function getClassifierData(service, characteristic, server){
+    return server.getPrimaryService(service.code)
+    .then(newService => {
+      console.log('getting characteristic: ', characteristic.name);
+      return newService.getCharacteristic(characteristic.code)
+    })
+    .then(char => {
+      char.startNotifications().then(res => {
+        char.addEventListener('characteristicvaluechanged', handlePoseChanged);
+      })
+    })
+  }
+
+
 }
