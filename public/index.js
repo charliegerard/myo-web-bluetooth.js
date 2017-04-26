@@ -39,6 +39,10 @@ const characteristics = {
   classifierEventCharacteristic: {
     name: 'classifier event characteristic',
     code: 'd5060103-a904-deb9-4748-2c7f4a124842'
+  },
+  emgData0Characteristic: {
+    name: 'EMG Data 0 characteristic',
+    code: 'd5060105-a904-deb9-4748-2c7f4a124842'
   }
 }
 
@@ -66,8 +70,14 @@ window.onload = function(){
       console.log('server device: '+ Object.keys(server.device));
 
       standardServer = server;
+      // IMU Data
       // getService([services.controlService, services.imuDataService], [characteristics.commandCharacteristic, characteristics.imuDataCharacteristic], server);
-      getService([services.controlService, services.classifierService], [characteristics.commandCharacteristic, characteristics.classifierEventCharacteristic], server);
+
+      // Command Data
+      // getService([services.controlService, services.classifierService], [characteristics.commandCharacteristic, characteristics.classifierEventCharacteristic], server);
+
+      // EMG Data
+      getService([services.controlService, services.emgDataService], [characteristics.commandCharacteristic, characteristics.emgData0Characteristic], server);
       // getService([services.batteryService], [characteristics.batteryLevelCharacteristic], server);
 
       //Test EMG Data Service
@@ -162,6 +172,8 @@ window.onload = function(){
         getIMUData(requestedServices[1], requestedCharacteristics[1], server)
       } else if(requestedServices[1].code === services.classifierService.code){
         getClassifierData(requestedServices[1], requestedCharacteristics[1], server)
+      } else if(requestedServices[1].code === services.emgDataService.code){
+        getEMGData(requestedServices[1], requestedCharacteristics[1], server)
       }
     })
   }
@@ -179,6 +191,19 @@ window.onload = function(){
     })
   }
 
+  function getEMGData(service, characteristic, server){
+    return server.getPrimaryService(service.code)
+    .then(newService => {
+      console.log('getting characteristic: ', characteristic.name);
+      return newService.getCharacteristic(characteristic.code)
+    })
+    .then(char => {
+      char.startNotifications().then(res => {
+        char.addEventListener('characteristicvaluechanged', handleEMGDataChanged);
+      })
+    })
+  }
+
   function getClassifierData(service, characteristic, server){
     return server.getPrimaryService(service.code)
     .then(newService => {
@@ -187,7 +212,6 @@ window.onload = function(){
     })
     .then(char => {
       char.startNotifications().then(res => {
-        console.log('here right??');
         char.addEventListener('characteristicvaluechanged', handlePoseChanged);
       })
     })
@@ -241,5 +265,35 @@ window.onload = function(){
     } else if(eventReceived == 2){
       console.log('arm unsynced');
     }
+  }
+
+  function handleEMGDataChanged(event){
+    //byteLength of ImuData DataView object is 20.
+    // imuData return {{orientation: {w: *, x: *, y: *, z: *}, accelerometer: Array, gyroscope: Array}}
+    let emgData = event.target.value;
+
+    let sample1 = [
+      emgData.getInt8(0),
+      emgData.getInt8(1),
+      emgData.getInt8(2),
+      emgData.getInt8(3),
+      emgData.getInt8(4),
+      emgData.getInt8(5),
+      emgData.getInt8(6),
+      emgData.getInt8(7)
+    ]
+
+    let sample2 = [
+      emgData.getInt8(8),
+      emgData.getInt8(9),
+      emgData.getInt8(10),
+      emgData.getInt8(11),
+      emgData.getInt8(12),
+      emgData.getInt8(13),
+      emgData.getInt8(14),
+      emgData.getInt8(15)
+    ]
+
+    console.log('emg data: ', sample1);
   }
 }
