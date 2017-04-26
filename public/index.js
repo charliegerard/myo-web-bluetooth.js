@@ -102,12 +102,6 @@ window.onload = function(){
     console.log('orientation: ', orientationW);
   }
 
-  function handlePoseChanged(event){
-    console.log('getting here', event);
-    console.log('getting here', event.target.value.getUint8(0));
-  }
-
-
   function getService(requestedServices, requestedCharacteristics, server){
     standardServer = server;
     // let { controlService, IMUService } = services;
@@ -197,5 +191,44 @@ window.onload = function(){
         char.addEventListener('characteristicvaluechanged', handlePoseChanged);
       })
     })
+  }
+
+  function handlePoseChanged(event){
+
+    let eventReceived = event.target.value.getUint8(0);
+    let poseEventCode = event.target.value.getInt16(1) / 256;
+    // Arm synced
+    if(eventReceived == 1){
+      console.log('Arm synced');
+      // console.log('type: ', event.target.value.getUint8(0));
+      console.log('arm: ', event.target.value.getUint8(1));
+      console.log('x_direction: ', event.target.value.getUint8(2));
+
+      // event pose received
+    } else if(eventReceived == 3){
+      if( poseEventCode == 2){ //512 in 768 out
+        console.log('wave in');
+      } else if(poseEventCode == 3){
+        console.log('wave out');
+      } else if(poseEventCode == 1){
+        console.log('fist');
+      } else if(poseEventCode == 0){
+        console.log('rest');
+      } else if(poseEventCode == 4){
+        console.log('fingers spread');
+      } else if(poseEventCode == 5){
+        console.log('double tap');
+      } else if(poseEventCode == 255){
+        console.log('unknown');
+      }
+    } else if(eventReceived == 6){
+      console.log('arm sync failed');
+    } else if(eventReceived == 5){
+      console.log('locked');
+    } else if(eventReceived == 4){
+      console.log('unlocked');
+    } else if(eventReceived == 2){
+      console.log('arm unsynced');
+    }
   }
 }
