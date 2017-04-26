@@ -47,6 +47,8 @@ const characteristics = {
 }
 
 window.onload = function(){
+  var myoWB = new MyoWB('Myo');
+
   var button = document.getElementById("connect");
   let batteryLevelCharacteristic;
 
