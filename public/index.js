@@ -200,9 +200,20 @@ window.onload = function(){
     // Arm synced
     if(eventReceived == 1){
       console.log('Arm synced');
-      // console.log('type: ', event.target.value.getUint8(0));
-      console.log('arm: ', event.target.value.getUint8(1));
-      console.log('x_direction: ', event.target.value.getUint8(2));
+      let arm = event.target.value.getUint8(1);
+      let x_direction = event.target.value.getUint8(2);
+
+      if(arm == 1){
+        console.log('right arm');
+      } else if(arm == 2){
+        console.log('left arm');
+      }
+
+      if(x_direction == 1){
+        console.log('towards wrist');
+      } else if(x_direction == 2){
+        console.log('towards elbow');
+      }
 
       // event pose received
     } else if(eventReceived == 3){
