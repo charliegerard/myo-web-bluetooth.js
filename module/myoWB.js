@@ -101,7 +101,7 @@ class MyoWB{
     requestedServices.filter((service) => {
       if(service.uuid == services.batteryService.uuid){
         // No need to pass in all requested characteristics for the battery service as the battery level is the only characteristic available.
-        // this.getBatteryData(service, characteristics.batteryLevelCharacteristic, this.standardServer)
+        this.getBatteryData(service, characteristics.batteryLevelCharacteristic, this.standardServer)
       } else if(service.uuid == services.controlService.uuid){
         this.getControlService(requestedServices, requestedCharacteristics, this.standardServer);
       }
@@ -126,6 +126,7 @@ class MyoWB{
     .then(value => {
       let batteryLevel = value.getUint8(0);
       console.log('> Battery Level is ' + batteryLevel + '%');
+      // _this.state.batteryLevel = batteryLevel;
     })
     .catch(error => {
       console.log('Error: ', error);
@@ -163,12 +164,12 @@ class MyoWB{
           this.getIMUData(IMUService[0], IMUDataChar[0], server);
         }
         if(EMGService.length > 0){
-          // console.log('getting service: ', EMGService[0].name);
-          // this.getEMGData(EMGService[0], EMGDataChar[0], server);
+          console.log('getting service: ', EMGService[0].name);
+          this.getEMGData(EMGService[0], EMGDataChar[0], server);
         }
         if(classifierService.length > 0){
-          // console.log('getting service: ', classifierService[0].name);
-          // this.getClassifierData(classifierService[0], classifierEventChar[0], server);
+          console.log('getting service: ', classifierService[0].name);
+          this.getClassifierData(classifierService[0], classifierEventChar[0], server);
         }
       })
       .catch(error =>{
@@ -179,6 +180,7 @@ class MyoWB{
   handleBatteryLevelChanged(event){
     let batteryLevel = event.target.value.getUint8(0);
     console.log('> Battery Level is ' + batteryLevel + '%');
+    _this.state.batteryLevel = batteryLevel;
   }
 
   handleIMUDataChanged(event){
@@ -202,8 +204,15 @@ class MyoWB{
     console.log('orientation: ', orientationW);
 
     _this.state = {
-      orientationW: orientationW,
-      orientationX: orientationX
+      orientation: [
+        orientationX, orientationY, orientationZ
+      ],
+      accelerometer: [
+        accelerometerX, accelerometerY, accelerometerZ
+      ],
+      gyroscope: [
+        gyroscopeX, gyroscopeY, gyroscopeZ
+      ]
     }
 
     _this.onStateChangeCallback(_this.state);
@@ -290,26 +299,35 @@ class MyoWB{
   }
 
   getPoseEvent(code){
+    let pose;
     switch(code){
       case 1:
         console.log('fist');
+        pose = 'fist';
         break;
       case 2:
         console.log('wave in');
+        pose = 'wave in';
         break;
       case 3:
         console.log('wave out');
+        pose = 'wave out';
         break;
       case 4:
         console.log('fingers spread');
+        pose = 'fingers spread';
         break;
       case 5:
         console.log('double tap');
+        pose = 'double tap';
         break;
       case 255:
         console.log('unknown');
+        pose = 'unknown'
         break;
     }
+
+    _this.state.pose = pose;
   }
 
   handleEMGDataChanged(event){
@@ -340,6 +358,7 @@ class MyoWB{
       ]
 
       console.log('emg data: ', sample1);
+      _this.state.emgData = sample1;
   }
 
   onStateChange(callback){
