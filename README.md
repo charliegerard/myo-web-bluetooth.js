@@ -25,19 +25,41 @@ Available so far:
 * Classifier Service
   * Classifier event characteristic
 
+### Example of use:
 
-### Getting started:
+```javascript
+window.onload = function(){
+  let myoWB = new MyoWB('Myo');
 
-* Add the file `MyoWB.js` in your app.
+  let services = myoWB.services;
+  let characteristics = myoWB.characteristics;
+  let button = document.getElementById("connect");
 
-* Create a new instance of the module:
+  button.onclick = function(e){
+    return navigator.bluetooth.requestDevice({
+      filters: [
+        {name: myoWB.name},
+        {
+          services: [services.batteryService.uuid,
+                     services.imuDataService.uuid,
+                     services.controlService.uuid,
+                     services.emgDataService.uuid]
+        }
+      ],
+      optionalServices: [services.classifierService.uuid]
+    })
+    .then(device => {
+      console.log('Device discovered', device.name);
+      return device.gatt.connect();
+    })
+    .then(server => {
+      console.log('server device: '+ Object.keys(server.device));
+      var batteryLevel = myoWB.getBatteryData(services.batteryService, characteristics.batteryLevelCharacteristic, server);
+      console.log(batteryLevel);
 
-```
-var myoWB = new MyoWB('Myo');
-```
+    })
+    .catch(error => {console.log('error',error)})
+  }
+}
 
-* Call methods to get services and pass in the UUIDs of the services and characteristics wanted.
-
-```
-  myoWB.getServices([])
 ```

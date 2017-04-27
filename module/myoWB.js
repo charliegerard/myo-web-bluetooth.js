@@ -1,4 +1,6 @@
-// UUIDs can be generated from here: https://www.guidgenerator.com/online-guid-generator.aspx
+/**
+* @author Charlie Gerard / http://charliegerard.github.io
+*/
 
 const services = {
   controlService: {
@@ -46,6 +48,8 @@ const characteristics = {
   }
 }
 
+var _this;
+
 class MyoWB{
   constructor(name){
     this.name = name;
@@ -53,30 +57,62 @@ class MyoWB{
     this.characteristics = characteristics;
 
     this.standardServer;
+
+    this.state = {};
+
+    _this = this;
   }
 
-  init(){
-    console.log('hello');
+  connect(){
+    return navigator.bluetooth.requestDevice({
+      filters: [
+        {name: this.name},
+        {
+          services: [services.batteryService.uuid,
+                     services.imuDataService.uuid,
+                     services.controlService.uuid,
+                     services.emgDataService.uuid]
+        }
+      ],
+      optionalServices: [services.classifierService.uuid]
+    })
+    .then(device => {
+      console.log('Device discovered', device.name);
+      return device.gatt.connect();
+    })
+    .then(server => {
+      console.log('server device: '+ Object.keys(server.device));
+
+      this.getServices([services.batteryService, services.controlService, services.emgDataService, services.imuDataService, services.classifierService], [characteristics.batteryLevelCharacteristic, characteristics.commandCharacteristic, characteristics.emgData0Characteristic, characteristics.imuDataCharacteristic, characteristics.classifierEventCharacteristic], server);
+
+      // this.getServices([services], [characteristics], server);
+
+      // this.getBatteryData(services.batteryService, characteristics.batteryLevelCharacteristic, server);
+
+      //Test EMG Data Service
+      // return server.getPrimaryService('d5060005-a904-deb9-4748-2c7f4a124842');
+    })
+    .catch(error => {console.log('error',error)})
   }
 
-  getService(requestedServices, requestedCharacteristics, server){
+  getServices(requestedServices, requestedCharacteristics, server){
     this.standardServer = server;
-    // let { controlService, IMUService } = services;
-    // let { commandChar, IMUDataChar } = characteristics;
-    if(requestedServices[0].uuid === services.batteryService.uuid){
-      this.getBatteryData(requestedServices[0], requestedCharacteristics, this.standardServer)
-    } else if( requestedServices[0].uuid == services.controlService.uuid) {
-      this.getControlService(requestedServices, requestedCharacteristics, this.standardServer);
-    }
+
+    requestedServices.filter((service) => {
+      if(service.uuid == services.batteryService.uuid){
+        // No need to pass in all requested characteristics for the battery service as the battery level is the only characteristic available.
+        // this.getBatteryData(service, characteristics.batteryLevelCharacteristic, this.standardServer)
+      } else if(service.uuid == services.controlService.uuid){
+        this.getControlService(requestedServices, requestedCharacteristics, this.standardServer);
+      }
+    })
   }
 
   getBatteryData(service, reqChar, server){
     return server.getPrimaryService(service.uuid)
     .then(service => {
       console.log('getting battery service');
-      if(reqChar[0].uuid === characteristics.batteryLevelCharacteristic.uuid){
-        this.getBatteryLevel(reqChar[0].uuid, service)
-      }
+      this.getBatteryLevel(reqChar.uuid, service)
     })
   }
 
@@ -96,33 +132,47 @@ class MyoWB{
     })
   }
 
-
   getControlService(requestedServices, requestedCharacteristics, server){
-      let controlService = requestedServices[0].uuid;
-      let IMUService = requestedServices[1].uuid;
-      let commandChar = requestedCharacteristics[0].uuid;
-      let IMUDataChar = requestedCharacteristics[1].uuid;
+      let controlService = requestedServices.filter((service) => { return service.uuid == services.controlService.uuid});
+      let commandChar = requestedCharacteristics.filter((char) => {return char.uuid == characteristics.commandCharacteristic.uuid});
 
-      return server.getPrimaryService(controlService)
+      // Before having access to IMU, EMG and Pose data, we need to indicate to the Myo that we want to receive this data.
+      return server.getPrimaryService(controlService[0].uuid)
       .then(service => {
-        console.log('getting service: ', requestedServices[0].name);
-        return service.getCharacteristic(commandChar);
+        console.log('getting service: ', controlService[0].name);
+        return service.getCharacteristic(commandChar[0].uuid);
       })
       .then(characteristic => {
-        console.log('getting characteristic: ', requestedCharacteristics[0].name);
+        console.log('getting characteristic: ', commandChar[0].name);
         // return new Buffer([0x01,3,emg_mode,imu_mode,classifier_mode]);
+        // The values passed in the buffer indicate that we want to receive all data without restriction;
         let commandValue = new Uint8Array([0x01,3,0x02,0x03,0x01]);
         characteristic.writeValue(commandValue);
       })
       .then(_ => {
-        console.log('getting service: ', requestedServices[1].name);
-        if(requestedServices[1].uuid === services.imuDataService.uuid){
-          this.getIMUData(requestedServices[1], requestedCharacteristics[1], server)
-        } else if(requestedServices[1].uuid === services.classifierService.uuid){
-          this.getClassifierData(requestedServices[1], requestedCharacteristics[1], server)
-        } else if(requestedServices[1].uuid === services.emgDataService.uuid){
-          this.getEMGData(requestedServices[1], requestedCharacteristics[1], server)
+        let IMUService = requestedServices.filter((service) => {return service.uuid == services.imuDataService.uuid});
+        let EMGService = requestedServices.filter((service) => {return service.uuid == services.emgDataService.uuid});
+        let classifierService = requestedServices.filter((service) => {return service.uuid == services.classifierService.uuid});
+
+        let IMUDataChar = requestedCharacteristics.filter((char) => {return char.uuid == characteristics.imuDataCharacteristic.uuid});
+        let EMGDataChar = requestedCharacteristics.filter((char) => {return char.uuid == characteristics.emgData0Characteristic.uuid});
+        let classifierEventChar = requestedCharacteristics.filter((char) => {return char.uuid == characteristics.classifierEventCharacteristic.uuid});
+
+        if(IMUService.length > 0){
+          console.log('getting service: ', IMUService[0].name);
+          this.getIMUData(IMUService[0], IMUDataChar[0], server);
         }
+        if(EMGService.length > 0){
+          // console.log('getting service: ', EMGService[0].name);
+          // this.getEMGData(EMGService[0], EMGDataChar[0], server);
+        }
+        if(classifierService.length > 0){
+          // console.log('getting service: ', classifierService[0].name);
+          // this.getClassifierData(classifierService[0], classifierEventChar[0], server);
+        }
+      })
+      .catch(error =>{
+        console.log('error: ', error);
       })
   }
 
@@ -136,20 +186,31 @@ class MyoWB{
     // imuData return {{orientation: {w: *, x: *, y: *, z: *}, accelerometer: Array, gyroscope: Array}}
     let imuData = event.target.value;
 
-    var orientationW = event.target.value.getInt16(0) / 16384;
-    var orientationX = event.target.value.getInt16(2) / 16384;
-    var orientationY = event.target.value.getInt16(4) / 16384;
-    var orientationZ = event.target.value.getInt16(6) / 16384;
+    let orientationW = event.target.value.getInt16(0) / 16384;
+    let orientationX = event.target.value.getInt16(2) / 16384;
+    let orientationY = event.target.value.getInt16(4) / 16384;
+    let orientationZ = event.target.value.getInt16(6) / 16384;
 
-    var accelerometerX = event.target.value.getInt16(8) / 2048;
-    var accelerometerY = event.target.value.getInt16(10) / 2048;
-    var accelerometerX = event.target.value.getInt16(12) / 2048;
+    let accelerometerX = event.target.value.getInt16(8) / 2048;
+    let accelerometerY = event.target.value.getInt16(10) / 2048;
+    let accelerometerZ = event.target.value.getInt16(12) / 2048;
 
-    var gyroscopeX = event.target.value.getInt16(14) / 16;
-    var gyroscopeY = event.target.value.getInt16(16) / 16;
-    var gyroscopeZ = event.target.value.getInt16(18) / 16;
+    let gyroscopeX = event.target.value.getInt16(14) / 16;
+    let gyroscopeY = event.target.value.getInt16(16) / 16;
+    let gyroscopeZ = event.target.value.getInt16(18) / 16;
 
     console.log('orientation: ', orientationW);
+
+    _this.state = {
+      orientationW: orientationW,
+      orientationX: orientationX
+    }
+
+    _this.onStateChangeCallback(_this.state);
+  }
+
+  onStateChangeCallback() {
+    return this.state
   }
 
   getIMUData(service, characteristic, server){
@@ -192,7 +253,6 @@ class MyoWB{
   }
 
   handlePoseChanged(event){
-
     let eventReceived = event.target.value.getUint8(0);
     let poseEventCode = event.target.value.getInt16(1) / 256;
     // Arm synced
@@ -215,21 +275,9 @@ class MyoWB{
 
       // event pose received
     } else if(eventReceived == 3){
-      if( poseEventCode == 2){ //512 in 768 out
-        console.log('wave in');
-      } else if(poseEventCode == 3){
-        console.log('wave out');
-      } else if(poseEventCode == 1){
-        console.log('fist');
-      } else if(poseEventCode == 0){
-        console.log('rest');
-      } else if(poseEventCode == 4){
-        console.log('fingers spread');
-      } else if(poseEventCode == 5){
-        console.log('double tap');
-      } else if(poseEventCode == 255){
-        console.log('unknown');
-      }
+
+      this.getPoseEvent(poseEventCode);
+
     } else if(eventReceived == 6){
       console.log('arm sync failed');
     } else if(eventReceived == 5){
@@ -241,6 +289,28 @@ class MyoWB{
     }
   }
 
+  getPoseEvent(code){
+    switch(code){
+      case 1:
+        console.log('fist');
+        break;
+      case 2:
+        console.log('wave in');
+        break;
+      case 3:
+        console.log('wave out');
+        break;
+      case 4:
+        console.log('fingers spread');
+        break;
+      case 5:
+        console.log('double tap');
+        break;
+      case 255:
+        console.log('unknown');
+        break;
+    }
+  }
 
   handleEMGDataChanged(event){
       //byteLength of ImuData DataView object is 20.
@@ -271,4 +341,9 @@ class MyoWB{
 
       console.log('emg data: ', sample1);
   }
+
+  onStateChange(callback){
+    this.onStateChangeCallback = callback;
+  }
+
 }
