@@ -21,6 +21,23 @@ Available so far:
 * Battery Service
   * Battery level characteristic
 
-  
+
 * Classifier Service
   * Classifier event characteristic
+
+
+### Getting started:
+
+* Add the file `MyoWB.js` in your app.
+
+* Create a new instance of the module:
+
+```
+var myoWB = new MyoWB('Myo');
+```
+
+* Call methods to get services and pass in the UUIDs of the services and characteristics wanted.
+
+```
+  myoWB.getServices([])
+```
