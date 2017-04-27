@@ -51,6 +51,8 @@ class MyoWB{
     this.name = name;
     this.services = services;
     this.characteristics = characteristics;
+
+    this.standardServer;
   }
 
   init(){
@@ -58,13 +60,13 @@ class MyoWB{
   }
 
   getService(requestedServices, requestedCharacteristics, server){
-    standardServer = server;
+    this.standardServer = server;
     // let { controlService, IMUService } = services;
     // let { commandChar, IMUDataChar } = characteristics;
     if(requestedServices[0].code === services.batteryService.code){
-      getBatteryData(requestedServices[0], requestedCharacteristics, standardServer)
+      this.getBatteryData(requestedServices[0], requestedCharacteristics, this.standardServer)
     } else if( requestedServices[0].code == services.controlService.code) {
-      getControlService(requestedServices, requestedCharacteristics, standardServer);
+      this.getControlService(requestedServices, requestedCharacteristics, this.standardServer);
     }
   }
 
@@ -73,7 +75,7 @@ class MyoWB{
     .then(service => {
       console.log('getting battery service');
       if(reqChar[0].code === characteristics.batteryLevelCharacteristic.code){
-        getBatteryLevel(reqChar[0].code, service)
+        this.getBatteryLevel(reqChar[0].code, service)
       }
     })
   }
@@ -82,7 +84,7 @@ class MyoWB{
     return service.getCharacteristic(characteristic)
     .then(char => {
       console.log('getting battery level characteristic');
-      char.addEventListener('characteristicvaluechanged',handleBatteryLevelChanged);
+      char.addEventListener('characteristicvaluechanged', this.handleBatteryLevelChanged);
       return char.readValue();
     })
     .then(value => {
@@ -115,11 +117,11 @@ class MyoWB{
       .then(_ => {
         console.log('getting service: ', requestedServices[1].name);
         if(requestedServices[1].code === services.imuDataService.code){
-          getIMUData(requestedServices[1], requestedCharacteristics[1], server)
+          this.getIMUData(requestedServices[1], requestedCharacteristics[1], server)
         } else if(requestedServices[1].code === services.classifierService.code){
-          getClassifierData(requestedServices[1], requestedCharacteristics[1], server)
+          this.getClassifierData(requestedServices[1], requestedCharacteristics[1], server)
         } else if(requestedServices[1].code === services.emgDataService.code){
-          getEMGData(requestedServices[1], requestedCharacteristics[1], server)
+          this.getEMGData(requestedServices[1], requestedCharacteristics[1], server)
         }
       })
   }
@@ -158,7 +160,7 @@ class MyoWB{
     })
     .then(char => {
       char.startNotifications().then(res => {
-        char.addEventListener('characteristicvaluechanged', handleIMUDataChanged);
+        char.addEventListener('characteristicvaluechanged', this.handleIMUDataChanged);
       })
     })
   }
@@ -171,7 +173,7 @@ class MyoWB{
     })
     .then(char => {
       char.startNotifications().then(res => {
-        char.addEventListener('characteristicvaluechanged', handleEMGDataChanged);
+        char.addEventListener('characteristicvaluechanged', this.handleEMGDataChanged);
       })
     })
   }
@@ -184,7 +186,7 @@ class MyoWB{
     })
     .then(char => {
       char.startNotifications().then(res => {
-        char.addEventListener('characteristicvaluechanged', handlePoseChanged);
+        char.addEventListener('characteristicvaluechanged', this.handlePoseChanged);
       })
     })
   }

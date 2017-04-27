@@ -7,8 +7,6 @@ window.onload = function(){
   var button = document.getElementById("connect");
   let batteryLevelCharacteristic;
 
-  let standardServer;
-
   button.onclick = function(e){
     return navigator.bluetooth.requestDevice({
       filters: [
