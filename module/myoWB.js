@@ -3,46 +3,46 @@
 const services = {
   controlService: {
     name: 'control service',
-    code: 'd5060001-a904-deb9-4748-2c7f4a124842'
+    uuid: 'd5060001-a904-deb9-4748-2c7f4a124842'
   },
   imuDataService :{
     name: 'IMU Data Service',
-    code: 'd5060002-a904-deb9-4748-2c7f4a124842'
+    uuid: 'd5060002-a904-deb9-4748-2c7f4a124842'
   },
   emgDataService: {
     name: 'EMG Data Service',
-    code: 'd5060005-a904-deb9-4748-2c7f4a124842'
+    uuid: 'd5060005-a904-deb9-4748-2c7f4a124842'
   },
   batteryService: {
     name: 'battery service',
-    code: 0x180f
+    uuid: 0x180f
   },
   classifierService: {
     name: 'classifier service',
-    code: 'd5060003-a904-deb9-4748-2c7f4a124842'
+    uuid: 'd5060003-a904-deb9-4748-2c7f4a124842'
   }
 }
 
 const characteristics = {
   commandCharacteristic: {
     name: 'command characteristic',
-    code: 'd5060401-a904-deb9-4748-2c7f4a124842'
+    uuid: 'd5060401-a904-deb9-4748-2c7f4a124842'
   },
   imuDataCharacteristic: {
     name: 'imu data characteristic',
-    code: 'd5060402-a904-deb9-4748-2c7f4a124842'
+    uuid: 'd5060402-a904-deb9-4748-2c7f4a124842'
   },
   batteryLevelCharacteristic: {
     name: 'battery level characteristic',
-    code: 0x2a19
+    uuid: 0x2a19
   },
   classifierEventCharacteristic: {
     name: 'classifier event characteristic',
-    code: 'd5060103-a904-deb9-4748-2c7f4a124842'
+    uuid: 'd5060103-a904-deb9-4748-2c7f4a124842'
   },
   emgData0Characteristic: {
     name: 'EMG Data 0 characteristic',
-    code: 'd5060105-a904-deb9-4748-2c7f4a124842'
+    uuid: 'd5060105-a904-deb9-4748-2c7f4a124842'
   }
 }
 
@@ -63,19 +63,19 @@ class MyoWB{
     this.standardServer = server;
     // let { controlService, IMUService } = services;
     // let { commandChar, IMUDataChar } = characteristics;
-    if(requestedServices[0].code === services.batteryService.code){
+    if(requestedServices[0].uuid === services.batteryService.uuid){
       this.getBatteryData(requestedServices[0], requestedCharacteristics, this.standardServer)
-    } else if( requestedServices[0].code == services.controlService.code) {
+    } else if( requestedServices[0].uuid == services.controlService.uuid) {
       this.getControlService(requestedServices, requestedCharacteristics, this.standardServer);
     }
   }
 
   getBatteryData(service, reqChar, server){
-    return server.getPrimaryService(service.code)
+    return server.getPrimaryService(service.uuid)
     .then(service => {
       console.log('getting battery service');
-      if(reqChar[0].code === characteristics.batteryLevelCharacteristic.code){
-        this.getBatteryLevel(reqChar[0].code, service)
+      if(reqChar[0].uuid === characteristics.batteryLevelCharacteristic.uuid){
+        this.getBatteryLevel(reqChar[0].uuid, service)
       }
     })
   }
@@ -98,10 +98,10 @@ class MyoWB{
 
 
   getControlService(requestedServices, requestedCharacteristics, server){
-      let controlService = requestedServices[0].code;
-      let IMUService = requestedServices[1].code;
-      let commandChar = requestedCharacteristics[0].code;
-      let IMUDataChar = requestedCharacteristics[1].code;
+      let controlService = requestedServices[0].uuid;
+      let IMUService = requestedServices[1].uuid;
+      let commandChar = requestedCharacteristics[0].uuid;
+      let IMUDataChar = requestedCharacteristics[1].uuid;
 
       return server.getPrimaryService(controlService)
       .then(service => {
@@ -116,11 +116,11 @@ class MyoWB{
       })
       .then(_ => {
         console.log('getting service: ', requestedServices[1].name);
-        if(requestedServices[1].code === services.imuDataService.code){
+        if(requestedServices[1].uuid === services.imuDataService.uuid){
           this.getIMUData(requestedServices[1], requestedCharacteristics[1], server)
-        } else if(requestedServices[1].code === services.classifierService.code){
+        } else if(requestedServices[1].uuid === services.classifierService.uuid){
           this.getClassifierData(requestedServices[1], requestedCharacteristics[1], server)
-        } else if(requestedServices[1].code === services.emgDataService.code){
+        } else if(requestedServices[1].uuid === services.emgDataService.uuid){
           this.getEMGData(requestedServices[1], requestedCharacteristics[1], server)
         }
       })
@@ -153,10 +153,10 @@ class MyoWB{
   }
 
   getIMUData(service, characteristic, server){
-    return server.getPrimaryService(service.code)
+    return server.getPrimaryService(service.uuid)
     .then(newService => {
       console.log('getting characteristic: ', characteristic.name);
-      return newService.getCharacteristic(characteristic.code)
+      return newService.getCharacteristic(characteristic.uuid)
     })
     .then(char => {
       char.startNotifications().then(res => {
@@ -166,10 +166,10 @@ class MyoWB{
   }
 
   getEMGData(service, characteristic, server){
-    return server.getPrimaryService(service.code)
+    return server.getPrimaryService(service.uuid)
     .then(newService => {
       console.log('getting characteristic: ', characteristic.name);
-      return newService.getCharacteristic(characteristic.code)
+      return newService.getCharacteristic(characteristic.uuid)
     })
     .then(char => {
       char.startNotifications().then(res => {
@@ -179,10 +179,10 @@ class MyoWB{
   }
 
   getClassifierData(service, characteristic, server){
-    return server.getPrimaryService(service.code)
+    return server.getPrimaryService(service.uuid)
     .then(newService => {
       console.log('getting characteristic: ', characteristic.name);
-      return newService.getCharacteristic(characteristic.code)
+      return newService.getCharacteristic(characteristic.uuid)
     })
     .then(char => {
       char.startNotifications().then(res => {
