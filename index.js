@@ -2,6 +2,7 @@ window.onload = function(){
 
   let button = document.getElementById("connect");
   let cube, renderer, scene, camera;
+  let myoObject;
 
   let rotationX = 0;
   let rotationY = 0;
@@ -37,19 +38,49 @@ window.onload = function(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.getElementsByClassName('container')[0].appendChild( renderer.domElement );
 
-    var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
-    cube = new THREE.Mesh( geometry, material );
-    scene.add( cube );
+    var loader = new THREE.OBJLoader();
+
+    var material = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+
+    loader.load( 'test.obj', function ( object ) {
+      object.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+          child.material = material;
+        }
+      });
+
+      object.position.z = -1;
+      object.position.y = 1;
+      object.scale.set(0.5,0.5,0.5);
+      object.rotation.set(0.7, 0.5, 0);
+      myoObject = object;
+      scene.add( object );
+    });
+
+    var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+    light.position.set(0,500,0);
+    light.castShadow = true;
+    scene.add( light );
+
+    // White directional light at half intensity shining from the top.
+    var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    directionalLight.castShadow = true;
+    directionalLight.position.set(0,500,0);
+    scene.add( directionalLight );
+
+    var light = new THREE.PointLight( 0xff0000, 1, 500 );
+    light.position.set( 100, 100, 100 );
+    scene.add( light );
 
     camera.position.z = 5;
   }
 
   function render(){
     requestAnimationFrame(render);
-
-    cube.rotation.x += rotationX;
-    cube.rotation.y += rotationY;
+    if(myoObject){
+      myoObject.rotation.x += rotationX;
+      myoObject.rotation.y += rotationY;
+    }
 
     renderer.render(scene, camera);
   }
