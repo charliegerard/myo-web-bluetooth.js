@@ -126,7 +126,6 @@ class MyoWB{
     .then(value => {
       let batteryLevel = value.getUint8(0);
       console.log('> Battery Level is ' + batteryLevel + '%');
-      // _this.state.batteryLevel = batteryLevel;
     })
     .catch(error => {
       console.log('Error: ', error);
@@ -179,7 +178,7 @@ class MyoWB{
 
   handleBatteryLevelChanged(event){
     let batteryLevel = event.target.value.getUint8(0);
-    console.log('> Battery Level is ' + batteryLevel + '%');
+    // console.log('> Battery Level is ' + batteryLevel + '%');
     _this.state.batteryLevel = batteryLevel;
   }
 
@@ -201,7 +200,7 @@ class MyoWB{
     let gyroscopeY = event.target.value.getInt16(16) / 16;
     let gyroscopeZ = event.target.value.getInt16(18) / 16;
 
-    console.log('orientation: ', orientationW);
+    // console.log('orientation: ', orientationW);
 
     _this.state = {
       orientation: [
@@ -302,27 +301,27 @@ class MyoWB{
     let pose;
     switch(code){
       case 1:
-        console.log('fist');
+        // console.log('fist');
         pose = 'fist';
         break;
       case 2:
-        console.log('wave in');
+        // console.log('wave in');
         pose = 'wave in';
         break;
       case 3:
-        console.log('wave out');
+        // console.log('wave out');
         pose = 'wave out';
         break;
       case 4:
-        console.log('fingers spread');
+        // console.log('fingers spread');
         pose = 'fingers spread';
         break;
       case 5:
-        console.log('double tap');
+        // console.log('double tap');
         pose = 'double tap';
         break;
       case 255:
-        console.log('unknown');
+        // console.log('unknown');
         pose = 'unknown'
         break;
     }
@@ -357,7 +356,7 @@ class MyoWB{
         emgData.getInt8(15)
       ]
 
-      console.log('emg data: ', sample1);
+      // console.log('emg data: ', sample1);
       _this.state.emgData = sample1;
   }
 
