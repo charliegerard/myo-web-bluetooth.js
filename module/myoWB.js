@@ -200,12 +200,21 @@ class MyoWB{
     let gyroscopeY = event.target.value.getInt16(16) / 16;
     let gyroscopeZ = event.target.value.getInt16(18) / 16;
 
-    // console.log('orientation: ', orientationW);
+    var data = {
+      orientation: {
+        x: orientationX,
+        y: orientationY,
+        z: orientationZ,
+        w: orientationW
+      }
+    }
+
+    var orientationOffset = {x : 0,y : 0,z : 0,w : 1};
+
+    var ori = _this.quatRotate(orientationOffset, data.orientation);
 
     _this.state = {
-      orientation: [
-        orientationX, orientationY, orientationZ
-      ],
+      orientation: data.orientation,
       accelerometer: [
         accelerometerX, accelerometerY, accelerometerZ
       ],
@@ -362,6 +371,15 @@ class MyoWB{
 
   onStateChange(callback){
     this.onStateChangeCallback = callback;
+  }
+
+  quatRotate(q, r){
+    return {
+				w: q.w * r.w - q.x * r.x - q.y * r.y - q.z * r.z,
+				x: q.w * r.x + q.x * r.w + q.y * r.z - q.z * r.y,
+				y: q.w * r.y - q.x * r.z + q.y * r.w + q.z * r.x,
+				z: q.w * r.z + q.x * r.y - q.y * r.x + q.z * r.w
+			};
   }
 
 }

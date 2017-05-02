@@ -3,27 +3,79 @@ window.onload = function(){
   let button = document.getElementById("connect");
   let cube, renderer, scene, camera;
   let myoObject;
+  var mesh;
 
-  let rotationX = 0;
-  let rotationY = 0;
+  let orientationX = 0;
+  let orientationY = 0;
+  let orientationZ = 0;
+  let orientationW = 0;
+
+  let eulerAngle;
+
+  var axis = new THREE.Vector3();
+	var quaternion = new THREE.Quaternion();
+	var quaternionHome = new THREE.Quaternion();
+	var initialised = false;
+	var timeout = null;
+
 
   button.onclick = function(e){
     var myoController = new MyoWB("Myo");
     myoController.connect();
 
-    myoController.onStateChange(function(state){
-      console.log('state: ', state);
+    window.quaternion = new THREE.Quaternion();
 
-      let batteryLevel = state.batteryLevel + '%';
-      let orientationData = state.orientation;
-      rotationX = orientationData[0];
-      rotationY = orientationData[1];
+    myoController.onStateChange(function(state){
+      // console.('state: ', state);
+
+      // let batteryLevel = state.batteryLevel + '%';
       let accelerometerData = state.accelerometer;
       let gyroscopeData = state.gyroscope;
-
       let poseData = state.pose;
-
       let emgData = state.emgData;
+
+
+      let orientationData = state.orientation;
+      orientationX = orientationData.x;
+      orientationY = orientationData.y;
+      orientationZ = orientationData.z;
+
+      // console.log(orientationData.y);
+
+      // window.quaternion.x = state.orientation.y;
+      // window.quaternion.y = state.orientation.z;
+      // window.quaternion.z = -state.orientation.x;
+      // window.quaternion.w = state.orientation.w;
+      //
+      // if(!window.baseRotation) {
+      //     window.baseRotation = quaternion.clone();
+      //     window.baseRotation = window.baseRotation.conjugate();
+      // }
+      //
+      // window.quaternion.multiply(baseRotation);
+      // window.quaternion.normalize();
+      // window.quaternion.z = -quaternion.z;
+
+      // if(mesh !== undefined){
+      //   var angle = Math.sqrt( orientationData.x * orientationData.x + orientationData.y * orientationData.y + orientationData.z * orientationData.z );
+      //
+			// 	if ( angle > 0 ) {
+			// 		axis.set( orientationData.x, orientationData.y, orientationData.z )
+			// 		axis.multiplyScalar( 1 / angle );
+			// 		quaternion.setFromAxisAngle( axis, angle );
+      //
+			// 		// if ( initialised === false ) {
+			// 		// 	quaternionHome.copy( quaternion );
+			// 		// 	quaternionHome.inverse();
+			// 		// 	initialised = true;
+			// 		// }
+			// 	} else {
+			// 		quaternion.set( 0, 0, 0, 1 );
+			// 	}
+      //
+      //   // mesh.quaternion.copy( quaternionHome );
+			// 	mesh.quaternion.multiply( quaternion );
+      // }
     });
   }
 
@@ -32,55 +84,59 @@ window.onload = function(){
 
   function init(){
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.001, 10 );
+    // camera.position.z = 0.015;
 
-    renderer = new THREE.WebGLRenderer({alpha: true});
+    renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.getElementsByClassName('container')[0].appendChild( renderer.domElement );
 
-    var loader = new THREE.OBJLoader();
+    // var loader = new THREE.JSONLoader()
+    // loader.load('myo.json', function(geometry){
+    //   var material = new THREE.MeshPhongMaterial( { color: 0x888899, shininess: 15, side: THREE.DoubleSide } );
+		// 		mesh = new THREE.Mesh( geometry, material );
+		// 		// mesh.rotation.x = Math.PI / 2;
+    //     mesh.rotation.x = 0.5;
+    //     mesh.scale.set(0.5, 0.5, 0.5);
+		// 		scene.add( mesh );
+    // })
 
-    var material = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+    var geometry = new THREE.BoxGeometry(1, 1, 1);
+    var material = new THREE.MeshPhongMaterial({color: 0x888899, shininess: 15, side: THREE.DoubleSide });
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.x = 0.5;
+    scene.add(mesh);
 
-    loader.load( 'test.obj', function ( object ) {
-      object.traverse( function ( child ) {
-        if ( child instanceof THREE.Mesh ) {
-          child.material = material;
-        }
-      });
+    var light = new THREE.HemisphereLight( 0xddddff, 0x808080, 0.7 );
+  			light.position.set( 0, 1, 0 );
+  			scene.add( light );
 
-      object.position.z = -1;
-      object.position.y = 1;
-      object.scale.set(0.5,0.5,0.5);
-      object.rotation.set(0.7, 0.5, 0);
-      myoObject = object;
-      scene.add( object );
-    });
+		var light = new THREE.DirectionalLight( 0xffffff, 0.6 );
+  			light.position.set( 1, 1, 1 );
+  			scene.add( light );
 
-    var light = new THREE.AmbientLight( 0x404040 ); // soft white light
-    light.position.set(0,500,0);
-    light.castShadow = true;
-    scene.add( light );
-
-    // White directional light at half intensity shining from the top.
-    var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
-    directionalLight.castShadow = true;
-    directionalLight.position.set(0,500,0);
-    scene.add( directionalLight );
-
-    var light = new THREE.PointLight( 0xff0000, 1, 500 );
-    light.position.set( 100, 100, 100 );
-    scene.add( light );
+		var light = new THREE.DirectionalLight( 0xffffff, 0.4 );
+  			light.position.set( 1, -1, 1 );
+  			scene.add( light );
 
     camera.position.z = 5;
   }
 
   function render(){
     requestAnimationFrame(render);
-    if(myoObject){
-      myoObject.rotation.x += rotationX;
-      myoObject.rotation.y += rotationY;
+
+
+    if(cube && window.quaternion){
+      // mesh.setRotationFromQuaternion(window.quaternion)
+
+      // numbers found here: https://github.com/logotype/myodaemon/blob/master/native-osx/visualizer/visualizer.html#L207
+
+      // cube.rotation.x = orientationX - 1.3;
+      // console.log(cube.rotation.x);
+      // cube.rotation.y = orientationY;
+      // cube.rotation.z = orientationZ + 0.6;
     }
+
 
     renderer.render(scene, camera);
   }
