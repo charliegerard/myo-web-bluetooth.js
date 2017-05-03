@@ -311,31 +311,25 @@ class MyoWB{
     let pose;
     switch(code){
       case 1:
-        // console.log('fist');
         pose = 'fist';
         break;
       case 2:
-        // console.log('wave in');
         pose = 'wave in';
         break;
       case 3:
-        // console.log('wave out');
         pose = 'wave out';
         break;
       case 4:
-        // console.log('fingers spread');
         pose = 'fingers spread';
         break;
       case 5:
-        // console.log('double tap');
         pose = 'double tap';
         break;
       case 255:
-        // console.log('unknown');
         pose = 'unknown'
         break;
     }
-    
+
     _this.state.pose = pose;
 
     _this.onStateChangeCallback(_this.state);

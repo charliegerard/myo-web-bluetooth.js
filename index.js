@@ -34,14 +34,15 @@ window.onload = function(){
       let poseData = state.pose;
       let emgData = state.emgData;
 
-
       let orientationData = state.orientation;
       orientationX = orientationData.x;
       orientationY = orientationData.y;
       orientationZ = orientationData.z;
 
       if(poseData){
-        console.log(poseData);
+        // console.log(poseData);
+        var poseDiv = document.getElementsByClassName('pose-data')[0];
+        poseDiv.innerHTML = poseData;
       }
 
 
