@@ -186,6 +186,7 @@ class MyoWB{
     //byteLength of ImuData DataView object is 20.
     // imuData return {{orientation: {w: *, x: *, y: *, z: *}, accelerometer: Array, gyroscope: Array}}
     let imuData = event.target.value;
+    // console.log(imuData.buffer);
 
     let orientationW = event.target.value.getInt16(0) / 16384;
     let orientationX = event.target.value.getInt16(2) / 16384;
@@ -209,9 +210,9 @@ class MyoWB{
       }
     }
 
-    var orientationOffset = {x : 0,y : 0,z : 0,w : 1};
+    // var orientationOffset = {x : 0,y : 0,z : 0,w : 1};
 
-    var ori = _this.quatRotate(orientationOffset, data.orientation);
+    // var ori = _this.quatRotate(orientationOffset, data.orientation);
 
     _this.state = {
       orientation: data.orientation,
@@ -293,7 +294,7 @@ class MyoWB{
       // event pose received
     } else if(eventReceived == 3){
 
-      this.getPoseEvent(poseEventCode);
+      _this.getPoseEvent(poseEventCode);
 
     } else if(eventReceived == 6){
       console.log('arm sync failed');
@@ -334,8 +335,10 @@ class MyoWB{
         pose = 'unknown'
         break;
     }
-
+    
     _this.state.pose = pose;
+
+    _this.onStateChangeCallback(_this.state);
   }
 
   handleEMGDataChanged(event){

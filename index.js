@@ -40,7 +40,10 @@ window.onload = function(){
       orientationY = orientationData.y;
       orientationZ = orientationData.z;
 
-      // console.log(orientationData.y);
+      if(poseData){
+        console.log(poseData);
+      }
+
 
       // window.quaternion.x = state.orientation.y;
       // window.quaternion.y = state.orientation.z;
@@ -85,27 +88,25 @@ window.onload = function(){
   function init(){
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.001, 10 );
-    // camera.position.z = 0.015;
 
     renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.getElementsByClassName('container')[0].appendChild( renderer.domElement );
 
-    // var loader = new THREE.JSONLoader()
-    // loader.load('myo.json', function(geometry){
-    //   var material = new THREE.MeshPhongMaterial( { color: 0x888899, shininess: 15, side: THREE.DoubleSide } );
-		// 		mesh = new THREE.Mesh( geometry, material );
-		// 		// mesh.rotation.x = Math.PI / 2;
-    //     mesh.rotation.x = 0.5;
-    //     mesh.scale.set(0.5, 0.5, 0.5);
-		// 		scene.add( mesh );
-    // })
+    var loader = new THREE.JSONLoader()
+    loader.load('myo.json', function(geometry){
+      var material = new THREE.MeshPhongMaterial( { color: 0x888899, shininess: 15, side: THREE.DoubleSide } );
+				mesh = new THREE.Mesh( geometry, material );
+        mesh.rotation.x = 0.5;
+        mesh.scale.set(0.5, 0.5, 0.5);
+				scene.add( mesh );
+    })
 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var material = new THREE.MeshPhongMaterial({color: 0x888899, shininess: 15, side: THREE.DoubleSide });
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.rotation.x = 0.5;
-    scene.add(mesh);
+    // var geometry = new THREE.BoxGeometry(1, 1, 1);
+    // var material = new THREE.MeshPhongMaterial({color: 0x888899, shininess: 15, side: THREE.DoubleSide });
+    // mesh = new THREE.Mesh(geometry, material);
+    // mesh.rotation.x = 0.5;
+    // scene.add(mesh);
 
     var light = new THREE.HemisphereLight( 0xddddff, 0x808080, 0.7 );
   			light.position.set( 0, 1, 0 );
@@ -125,18 +126,15 @@ window.onload = function(){
   function render(){
     requestAnimationFrame(render);
 
-
     if(cube && window.quaternion){
       // mesh.setRotationFromQuaternion(window.quaternion)
 
       // numbers found here: https://github.com/logotype/myodaemon/blob/master/native-osx/visualizer/visualizer.html#L207
 
       // cube.rotation.x = orientationX - 1.3;
-      // console.log(cube.rotation.x);
       // cube.rotation.y = orientationY;
       // cube.rotation.z = orientationZ + 0.6;
     }
-
 
     renderer.render(scene, camera);
   }
