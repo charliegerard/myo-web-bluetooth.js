@@ -2,36 +2,48 @@ body{
   font-family: 'Open Sans', sans-serif;
 }
 
+.intro{
+  display: block;
+  width: 90%;
+  margin: 0 auto 1rem auto;
+}
+
 #connect{
-  padding: 0.5em 1em;
+  padding: 1em;
   box-shadow: none;
   background: white;
   border: 1px solid black;
   cursor: pointer;
 }
 
+.main-container{
+  position: relative;
+  width: 90%;
+  display: block;
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+
 .container{
-  width: 50%;
+  width: 45%;
   height: 60%;
-  position: absolute;
-  float: right;
   right: 0;
+  display: inline-block;
+  vertical-align: top;
 }
 
 canvas{
   width: 100% !important;
   height: 100% !important;
+  border: 1px solid grey;
 }
 
 .myo-data{
-  display: block;
-  float: left;
-  width: 40%;
-  position: absolute;
+  display: inline-block;
+  width: 45%;
   border: 1px solid black;
   height: 60%;
-  margin-top: 2rem;
-  left: 1rem;
+  margin-right: 2rem;
 }
 
 .myo-data ul li{
@@ -39,6 +51,7 @@ canvas{
   list-style: none;
   left: 0;
   margin-left: 0;
+  margin-bottom: 0.5rem;
 }
 
 .myo-data ul{

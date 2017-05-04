@@ -5,7 +5,8 @@ window.onload = function(){
   let myoObject;
   var mesh;
 
-  let accelerometerData, gyroscopeData, poseData, emgData, orientationData, batteryLevel;
+  let accelerometerData, gyroscopeData, poseData, emgData,
+  orientationData, batteryLevel, armType, armSynced, myoDirection, myoLocked;
 
   let eulerAngle;
 
@@ -29,6 +30,10 @@ window.onload = function(){
       poseData = state.pose;
       emgData = state.emgData;
       orientationData = state.orientation;
+      armType = state.armType;
+      armSynced = state.armSynced;
+      myoDirection = state.myoDirection;
+      myoLocked = state.myoLocked;
 
       displayData();
 
@@ -131,6 +136,26 @@ window.onload = function(){
     if(batteryLevel){
       var batteryLevelDiv = document.getElementsByClassName('battery-data')[0];
       batteryLevelDiv.innerHTML = batteryLevel;
+    }
+
+    if(armType){
+      var armTypeDiv = document.getElementsByClassName('arm-type-data')[0];
+      armTypeDiv.innerHTML = armType;
+    }
+
+    if(armSynced){
+      var armSyncedDiv = document.getElementsByClassName('arm-synced-data')[0];
+      armSyncedDiv.innerHTML = armSynced;
+    }
+
+    if(myoDirection){
+      var myoDirectionDiv = document.getElementsByClassName('myo-direction-data')[0];
+      myoDirectionDiv.innerHTML = myoDirection;
+    }
+
+    if(myoLocked){
+      var myoLockedDiv = document.getElementsByClassName('myo-locked-data')[0];
+      myoLockedDiv.innerHTML = myoLocked;
     }
 
     if(poseData){

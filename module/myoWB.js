@@ -178,8 +178,9 @@ class MyoWB{
 
   handleBatteryLevelChanged(event){
     let batteryLevel = event.target.value.getUint8(0);
-    // console.log('> Battery Level is ' + batteryLevel + '%');
     _this.state.batteryLevel = batteryLevel;
+
+    _this.onStateChangeCallback(_this.state);
   }
 
   handleIMUDataChanged(event){
@@ -272,38 +273,47 @@ class MyoWB{
   handlePoseChanged(event){
     let eventReceived = event.target.value.getUint8(0);
     let poseEventCode = event.target.value.getInt16(1) / 256;
-    // Arm synced
-    if(eventReceived == 1){
-      console.log('Arm synced');
-      let arm = event.target.value.getUint8(1);
-      let x_direction = event.target.value.getUint8(2);
+    let armSynced, armType, myoDirection, myoLocked;
 
-      if(arm == 1){
-        console.log('right arm');
-      } else if(arm == 2){
-        console.log('left arm');
-      }
+    let arm = event.target.value.getUint8(1);
+    let x_direction = event.target.value.getUint8(2);
 
-      if(x_direction == 1){
-        console.log('towards wrist');
-      } else if(x_direction == 2){
-        console.log('towards elbow');
-      }
-
-      // event pose received
-    } else if(eventReceived == 3){
-
-      _this.getPoseEvent(poseEventCode);
-
-    } else if(eventReceived == 6){
-      console.log('arm sync failed');
-    } else if(eventReceived == 5){
-      console.log('locked');
-    } else if(eventReceived == 4){
-      console.log('unlocked');
-    } else if(eventReceived == 2){
-      console.log('arm unsynced');
+    switch(eventReceived){
+      case 1:
+        _this.eventArmSynced(arm, x_direction);
+        armSynced = true;
+        break;
+      case 2:
+        armSynced = false;
+        break;
+      case 3:
+        _this.getPoseEvent(poseEventCode);
+        break;
+      case 4:
+        myoLocked = false;
+        break;
+      case 5:
+        myoLocked = true;
+        break;
+      case 6:
+        armSynced = false;
+        break;
     }
+
+    _this.state.armSynced = armSynced;
+    _this.state.myoLocked = myoLocked;
+
+    _this.onStateChangeCallback(_this.state);
+  }
+
+  eventArmSynced(){
+    armType = (arm == 1) ? 'right' : ((arm == 2) ? 'left' : 'unknown');
+    myoDirection = (x_direction == 1) ? 'wrist' : ((x_direction == 2) ? 'elbow' : 'unknown');
+
+    _this.state.armType = armType;
+    _this.state.myoDirection = myoDirection;
+
+    return _this.state;
   }
 
   getPoseEvent(code){

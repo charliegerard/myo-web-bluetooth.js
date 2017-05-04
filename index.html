@@ -6,29 +6,41 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <h1>Web Bluetooth prototype</h1>
-    <button id="connect">
-      Connect bluetooth device
-    </button>
+    <div class="intro">
+      <h1>Web Bluetooth prototype</h1>
+      <button id="connect">
+        Connect bluetooth device
+      </button>
+    </div>
 
-    <section class="myo-data">
-      <ul>
-        <li class="data">Battery level: <span class="battery-data"></span></li>
-        <li class="data">Pose data: <span class="pose-data"></span></li>
-        <li class="data">Orientation X data: <span class="orientation-x-data"></span></li>
-        <li class="data">Orientation Y data: <span class="orientation-y-data"></span></li>
-        <li class="data">Orientation Z data: <span class="orientation-z-data"></span></li>
-        <li class="data">Accelerometer X data: <span class="accelerometer-x-data"></span></li>
-        <li class="data">Accelerometer Y data: <span class="accelerometer-y-data"></span></li>
-        <li class="data">Accelerometer Z data: <span class="accelerometer-z-data"></span></li>
-        <li class="data">Gyroscope X data: <span class="gyroscope-x-data"></span></li>
-        <li class="data">Gyroscope Y data: <span class="gyroscope-y-data"></span></li>
-        <li class="data">Gyroscope Z data: <span class="gyroscope-z-data"></span></li>
-      </ul>
+    <section class="main-container">
+
+      <div class="myo-data">
+        <ul>
+          <li class="data">Battery level: <span class="battery-data"></span></li>
+          <li class="data">Arm type: <span class="arm-type-data"></span></li>
+          <li class="data">Arm Synced: <span class="arm-synced-data"></span></li>
+          <li class="data">Myo direction: <span class="myo-direction-data"></span></li>
+          <li class="data">Myo locked: <span class="myo-locked-data"></span></li>
+          <li class="data">Pose data: <span class="pose-data"></span></li>
+          <li class="data">Orientation X data: <span class="orientation-x-data"></span></li>
+          <li class="data">Orientation Y data: <span class="orientation-y-data"></span></li>
+          <li class="data">Orientation Z data: <span class="orientation-z-data"></span></li>
+          <li class="data">Accelerometer X data: <span class="accelerometer-x-data"></span></li>
+          <li class="data">Accelerometer Y data: <span class="accelerometer-y-data"></span></li>
+          <li class="data">Accelerometer Z data: <span class="accelerometer-z-data"></span></li>
+          <li class="data">Gyroscope X data: <span class="gyroscope-x-data"></span></li>
+          <li class="data">Gyroscope Y data: <span class="gyroscope-y-data"></span></li>
+          <li class="data">Gyroscope Z data: <span class="gyroscope-z-data"></span></li>
+        </ul>
+      </div>
+
+      <div class="container">
+      </div>
+
     </section>
 
-    <div class="container">
-    </div>
+
 
     <script type="text/javascript" src="../module/MyoWB.js"></script>
     <script type="text/javascript" src="lib/eulerAngle.js"></script>
