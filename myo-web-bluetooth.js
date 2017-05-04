@@ -50,7 +50,7 @@ const characteristics = {
 
 var _this;
 
-class MyoWB{
+class MyoWebBluetooth{
   constructor(name){
     this.name = name;
     this.services = services;

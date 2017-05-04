@@ -1,6 +1,6 @@
-# Myo Web bluetooth - WIP
+# Myo-web-bluetooth.js
 
-Connect the MYO armband to a web page using web bluetooth.
+Connect to the Myo armband using Web Bluetooth.
 
 ### How to use:
 
@@ -10,7 +10,7 @@ window.onload = function(){
   let button = document.getElementById("connect");
 
   button.onclick = function(e){
-    var myoController = new MyoWB("Myo");
+    var myoController = new MyoWebBluetooth("Myo");
     myoController.connect();
 
     myoController.onStateChange(function(state){

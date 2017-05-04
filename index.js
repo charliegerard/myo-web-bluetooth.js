@@ -23,7 +23,7 @@ window.onload = function(){
 	var timeout = null;
 
   button.onclick = function(e){
-    var myoController = new MyoWB("Myo");
+    var myoController = new MyoWebBluetooth("Myo");
     myoController.connect();
 
     window.quaternion = new THREE.Quaternion();
