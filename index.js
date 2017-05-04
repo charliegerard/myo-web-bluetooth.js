@@ -1,6 +1,12 @@
 window.onload = function(){
-
   let button = document.getElementById("connect");
+  let message = document.getElementById("message");
+
+  if ( 'bluetooth' in navigator === false ) {
+      button.style.display = 'none';
+      message.innerHTML = 'This browser doesn\'t support the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API" target="_blank">Web Bluetooth API</a> :(';
+  }
+
   let cube, renderer, scene, camera;
   let myoObject;
   var mesh;

@@ -8,6 +8,15 @@ body{
   margin: 0 auto 1rem auto;
 }
 
+h1{
+  font-weight: 400;
+}
+
+.intro a{
+  margin-top: 1rem;
+  display: block;
+}
+
 #connect{
   padding: 1em;
   box-shadow: none;

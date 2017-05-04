@@ -339,9 +339,10 @@ class MyoWB{
         break;
     }
 
-    _this.state.pose = pose;
-
-    _this.onStateChangeCallback(_this.state);
+    if(pose){
+      _this.state.pose = pose;
+      _this.onStateChangeCallback(_this.state);
+    }
   }
 
   handleEMGDataChanged(event){
