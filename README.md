@@ -48,4 +48,3 @@ window.onload = function(){
 
 * Refactor.
 * Allow to query only certain services instead of all.
-* Add 3D model to reflect changes coming from Myo.

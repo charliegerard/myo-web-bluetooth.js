@@ -186,7 +186,6 @@ class MyoWB{
     //byteLength of ImuData DataView object is 20.
     // imuData return {{orientation: {w: *, x: *, y: *, z: *}, accelerometer: Array, gyroscope: Array}}
     let imuData = event.target.value;
-    // console.log(imuData.buffer);
 
     let orientationW = event.target.value.getInt16(0) / 16384;
     let orientationX = event.target.value.getInt16(2) / 16384;
@@ -364,6 +363,8 @@ class MyoWB{
 
       // console.log('emg data: ', sample1);
       _this.state.emgData = sample1;
+
+      _this.onStateChangeCallback(_this.state);
   }
 
   onStateChange(callback){

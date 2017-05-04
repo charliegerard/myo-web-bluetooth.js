@@ -5,10 +5,7 @@ window.onload = function(){
   let myoObject;
   var mesh;
 
-  let orientationX = 0;
-  let orientationY = 0;
-  let orientationZ = 0;
-  let orientationW = 0;
+  let accelerometerData, gyroscopeData, poseData, emgData, orientationData, batteryLevel;
 
   let eulerAngle;
 
@@ -18,7 +15,6 @@ window.onload = function(){
 	var initialised = false;
 	var timeout = null;
 
-
   button.onclick = function(e){
     var myoController = new MyoWB("Myo");
     myoController.connect();
@@ -26,25 +22,15 @@ window.onload = function(){
     window.quaternion = new THREE.Quaternion();
 
     myoController.onStateChange(function(state){
-      // console.('state: ', state);
 
-      // let batteryLevel = state.batteryLevel + '%';
-      let accelerometerData = state.accelerometer;
-      let gyroscopeData = state.gyroscope;
-      let poseData = state.pose;
-      let emgData = state.emgData;
+      batteryLevel = state.batteryLevel + '%';
+      accelerometerData = state.accelerometer;
+      gyroscopeData = state.gyroscope;
+      poseData = state.pose;
+      emgData = state.emgData;
+      orientationData = state.orientation;
 
-      let orientationData = state.orientation;
-      orientationX = orientationData.x;
-      orientationY = orientationData.y;
-      orientationZ = orientationData.z;
-
-      if(poseData){
-        // console.log(poseData);
-        var poseDiv = document.getElementsByClassName('pose-data')[0];
-        poseDiv.innerHTML = poseData;
-      }
-
+      displayData();
 
       // window.quaternion.x = state.orientation.y;
       // window.quaternion.y = state.orientation.z;
@@ -138,6 +124,52 @@ window.onload = function(){
     }
 
     renderer.render(scene, camera);
+  }
+
+  function displayData(){
+
+    if(batteryLevel){
+      var batteryLevelDiv = document.getElementsByClassName('battery-data')[0];
+      batteryLevelDiv.innerHTML = batteryLevel;
+    }
+
+    if(poseData){
+      var poseDiv = document.getElementsByClassName('pose-data')[0];
+      poseDiv.innerHTML = poseData;
+    }
+
+    if(orientationData){
+      var orientationXDiv = document.getElementsByClassName('orientation-x-data')[0];
+      orientationXDiv.innerHTML = orientationData.x;
+
+      var orientationYDiv = document.getElementsByClassName('orientation-y-data')[0];
+      orientationYDiv.innerHTML = orientationData.y;
+
+      var orientationZDiv = document.getElementsByClassName('orientation-z-data')[0];
+      orientationZDiv.innerHTML = orientationData.z;
+    }
+
+    if(accelerometerData){
+      var accelerometerXDiv = document.getElementsByClassName('accelerometer-x-data')[0];
+      accelerometerXDiv.innerHTML = accelerometerData.x;
+
+      var accelerometerYDiv = document.getElementsByClassName('accelerometer-y-data')[0];
+      accelerometerYDiv.innerHTML = accelerometerData.y;
+
+      var accelerometerZDiv = document.getElementsByClassName('accelerometer-z-data')[0];
+      accelerometerZDiv.innerHTML = accelerometerData.z;
+    }
+
+    if(gyroscopeData){
+      var gyroscopeXDiv = document.getElementsByClassName('gyroscope-x-data')[0];
+      gyroscopeXDiv.innerHTML = gyroscopeData.x;
+
+      var gyroscopeYDiv = document.getElementsByClassName('gyroscope-y-data')[0];
+      gyroscopeYDiv.innerHTML = gyroscopeData.y;
+
+      var gyroscopeZDiv = document.getElementsByClassName('gyroscope-z-data')[0];
+      gyroscopeZDiv.innerHTML = gyroscopeData.z;
+    }
   }
 
 }
