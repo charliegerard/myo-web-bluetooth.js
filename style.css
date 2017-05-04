@@ -35,7 +35,7 @@ h1{
 
 .container{
   width: 45%;
-  height: 60%;
+  min-height: 300px;
   right: 0;
   display: inline-block;
   vertical-align: top;
