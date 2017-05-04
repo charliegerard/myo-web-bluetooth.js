@@ -2,6 +2,15 @@
 
 Connect to the Myo armband using Web Bluetooth.
 
+### Steps:
+
+* Turn on your bluetooth.
+* Visit [this page](https://charliegerard.github.io/myo-web-bluetooth.js/index.html)
+* Click on the 'Connect' button.
+* If no device is recognized, make sure the name of your Myo is the default one ("My Myo").
+* If the gestures are not recognized, make sure you execute the 'sync' gesture before connecting.
+
+
 ### How to use:
 
 ```javascript
@@ -108,3 +117,7 @@ Available so far:
 
 * Classifier Service
   * Classifier event characteristic
+
+### To do:
+* Change, so works with Myo's default name.
+* Add images of poses for visual feedback.
