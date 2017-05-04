@@ -119,5 +119,5 @@ Available so far:
   * Classifier event characteristic
 
 ### To do:
-* Change, so works with Myo's default name.
 * Add images of poses for visual feedback.
+* Make orientation data work with 3d model.
