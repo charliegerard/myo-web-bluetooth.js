@@ -7,8 +7,8 @@ Connect to the Myo armband using Web Bluetooth.
 * Turn on your bluetooth.
 * Visit [this page](https://charliegerard.github.io/myo-web-bluetooth.js/index.html)
 * Click on the 'Connect' button.
-* If no device is recognized, make sure the name of your Myo is the default one ("My Myo").
-* If the gestures are not recognized, make sure you execute the 'sync' gesture before connecting.
+* If no device is recognised, make sure the name of your Myo is the same one as me ("Myo").
+* If the gestures are not recognised, make sure you execute the 'sync' gesture before connecting.
 
 
 ### How to use:
@@ -19,7 +19,7 @@ window.onload = function(){
   let button = document.getElementById("connect");
 
   button.onclick = function(e){
-    var myoController = new MyoWebBluetooth("My Myo");
+    var myoController = new MyoWebBluetooth("Myo");
     myoController.connect();
 
     myoController.onStateChange(function(state){
