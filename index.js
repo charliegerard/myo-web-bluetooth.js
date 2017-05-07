@@ -7,14 +7,11 @@ window.onload = function(){
       message.innerHTML = 'This browser doesn\'t support the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API" target="_blank">Web Bluetooth API</a> :(';
   }
 
-  let cube, renderer, scene, camera;
-  let myoObject;
+  let renderer, scene, camera;
   var mesh;
 
   let accelerometerData, gyroscopeData, poseData, emgData,
   orientationData, batteryLevel, armType, armSynced, myoDirection, myoLocked;
-
-  let eulerAngle;
 
   var axis = new THREE.Vector3();
 	var quaternion = new THREE.Quaternion();
@@ -25,8 +22,6 @@ window.onload = function(){
   button.onclick = function(e){
     var myoController = new MyoWebBluetooth("Myo");
     myoController.connect();
-
-    window.quaternion = new THREE.Quaternion();
 
     myoController.onStateChange(function(state){
 
@@ -46,19 +41,10 @@ window.onload = function(){
 
       displayData();
 
-      // window.quaternion.x = state.orientation.y;
-      // window.quaternion.y = state.orientation.z;
-      // window.quaternion.z = -state.orientation.x;
-      // window.quaternion.w = state.orientation.w;
-      //
-      // if(!window.baseRotation) {
-      //     window.baseRotation = quaternion.clone();
-      //     window.baseRotation = window.baseRotation.conjugate();
-      // }
-      //
-      // window.quaternion.multiply(baseRotation);
-      // window.quaternion.normalize();
-      // window.quaternion.z = -quaternion.z;
+      //***
+      // Orientation data coming back from the Myo is very sensitive.
+      // Not very useful to display on 3D cube as it is, but tried anyway.
+      //***
 
       // if(mesh !== undefined){
       //   var angle = Math.sqrt( orientationData.x * orientationData.x + orientationData.y * orientationData.y + orientationData.z * orientationData.z );
@@ -83,8 +69,8 @@ window.onload = function(){
     });
   }
 
-  init();
-  render();
+  // init();
+  // render();
 
   function init(){
     scene = new THREE.Scene();
@@ -94,20 +80,20 @@ window.onload = function(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.getElementsByClassName('container')[0].appendChild( renderer.domElement );
 
-    var loader = new THREE.JSONLoader()
-    loader.load('myo.json', function(geometry){
-      var material = new THREE.MeshPhongMaterial( { color: 0x888899, shininess: 15, side: THREE.DoubleSide } );
-				mesh = new THREE.Mesh( geometry, material );
-        mesh.rotation.x = 0.5;
-        mesh.scale.set(0.5, 0.5, 0.5);
-				scene.add( mesh );
-    })
+    // var loader = new THREE.JSONLoader()
+    // loader.load('myo.json', function(geometry){
+    //   var material = new THREE.MeshPhongMaterial( { color: 0x888899, shininess: 15, side: THREE.DoubleSide } );
+		// 		mesh = new THREE.Mesh( geometry, material );
+    //     mesh.rotation.x = 0.5;
+    //     mesh.scale.set(0.5, 0.5, 0.5);
+		// 		scene.add( mesh );
+    // })
 
-    // var geometry = new THREE.BoxGeometry(1, 1, 1);
-    // var material = new THREE.MeshPhongMaterial({color: 0x888899, shininess: 15, side: THREE.DoubleSide });
-    // mesh = new THREE.Mesh(geometry, material);
-    // mesh.rotation.x = 0.5;
-    // scene.add(mesh);
+    var geometry = new THREE.BoxGeometry(1, 1, 1);
+    var material = new THREE.MeshPhongMaterial({color: 0x888899, shininess: 15, side: THREE.DoubleSide });
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.x = 0.5;
+    scene.add(mesh);
 
     var light = new THREE.HemisphereLight( 0xddddff, 0x808080, 0.7 );
   			light.position.set( 0, 1, 0 );
@@ -126,22 +112,10 @@ window.onload = function(){
 
   function render(){
     requestAnimationFrame(render);
-
-    if(cube && window.quaternion){
-      // mesh.setRotationFromQuaternion(window.quaternion)
-
-      // numbers found here: https://github.com/logotype/myodaemon/blob/master/native-osx/visualizer/visualizer.html#L207
-
-      // cube.rotation.x = orientationX - 1.3;
-      // cube.rotation.y = orientationY;
-      // cube.rotation.z = orientationZ + 0.6;
-    }
-
     renderer.render(scene, camera);
   }
 
   function displayData(){
-
     if(batteryLevel){
       var batteryLevelDiv = document.getElementsByClassName('battery-data')[0];
       batteryLevelDiv.innerHTML = batteryLevel;
@@ -170,6 +144,26 @@ window.onload = function(){
     if(poseData){
       var poseDiv = document.getElementsByClassName('pose-data')[0];
       poseDiv.innerHTML = poseData;
+
+      var poseImage = document.getElementsByClassName('pose-image')[0];
+
+      switch(poseData){
+        case 'fist':
+          poseImage.src = "images/fist.jpg";
+          break;
+        case 'wave out':
+          poseImage.src = "images/wave-out.jpg";
+          break;
+        case 'wave in':
+          poseImage.src = "images/wave-in.jpg";
+          break;
+        case 'double tap':
+          poseImage.src = "images/double-tap.jpg";
+          break;
+        case 'fingers spread':
+          poseImage.src = "images/fingers-spread.jpg";
+          break;
+      }
     }
 
     if(orientationData){

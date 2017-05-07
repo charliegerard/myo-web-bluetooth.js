@@ -35,16 +35,22 @@ h1{
 
 .container{
   width: 45%;
-  min-height: 300px;
+  min-height: 15rem;
   right: 0;
   display: inline-block;
   vertical-align: top;
+  border: 1px solid grey;
+}
+
+.pose-image{
+  display: block;
+  margin: 0 auto;
+  width: 60%;
 }
 
 canvas{
   width: 100% !important;
   height: 100% !important;
-  border: 1px solid grey;
 }
 
 .myo-data{

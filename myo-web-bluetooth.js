@@ -50,18 +50,16 @@ const characteristics = {
 
 var _this;
 var state = {};
+var previousPose;
 
 class MyoWebBluetooth{
   constructor(name){
-
     _this = this;
     this.name = name;
     this.services = services;
     this.characteristics = characteristics;
 
     this.standardServer;
-
-    // this.state = {};
   }
 
   connect(){
@@ -85,13 +83,6 @@ class MyoWebBluetooth{
       console.log('server device: '+ Object.keys(server.device));
 
       this.getServices([services.batteryService, services.controlService, services.emgDataService, services.imuDataService, services.classifierService], [characteristics.batteryLevelCharacteristic, characteristics.commandCharacteristic, characteristics.emgData0Characteristic, characteristics.imuDataCharacteristic, characteristics.classifierEventCharacteristic], server);
-
-      // this.getServices([services], [characteristics], server);
-
-      // this.getBatteryData(services.batteryService, characteristics.batteryLevelCharacteristic, server);
-
-      //Test EMG Data Service
-      // return server.getPrimaryService('d5060005-a904-deb9-4748-2c7f4a124842');
     })
     .catch(error => {console.log('error',error)})
   }
@@ -224,10 +215,6 @@ class MyoWebBluetooth{
       }
     }
 
-    // var orientationOffset = {x : 0,y : 0,z : 0,w : 1};
-
-    // var ori = _this.quatRotate(orientationOffset, data.orientation);
-
     state = {
       orientation: data.orientation,
       accelerometer: data.accelerometer,
@@ -237,9 +224,7 @@ class MyoWebBluetooth{
     _this.onStateChangeCallback(state);
   }
 
-  onStateChangeCallback() {
-    // return _this.state
-  }
+  onStateChangeCallback() {}
 
   getIMUData(service, characteristic, server){
     return server.getPrimaryService(service.uuid)
@@ -328,6 +313,7 @@ class MyoWebBluetooth{
 
   getPoseEvent(code){
     let pose;
+    previousPose = pose;
     switch(code){
       case 1:
         pose = 'fist';
@@ -345,11 +331,11 @@ class MyoWebBluetooth{
         pose = 'double tap';
         break;
       case 255:
-        pose = 'unknown'
+        pose = 'unknown';
         break;
     }
 
-    if(pose){
+    if(previousPose !== pose){
       state.pose = pose;
       _this.onStateChangeCallback(state);
     }
@@ -382,7 +368,6 @@ class MyoWebBluetooth{
         emgData.getInt8(15)
       ]
 
-      // console.log('emg data: ', sample1);
       state.emgData = sample1;
 
       _this.onStateChangeCallback(state);
@@ -391,14 +376,4 @@ class MyoWebBluetooth{
   onStateChange(callback){
     _this.onStateChangeCallback = callback;
   }
-
-  quatRotate(q, r){
-    return {
-				w: q.w * r.w - q.x * r.x - q.y * r.y - q.z * r.z,
-				x: q.w * r.x + q.x * r.w + q.y * r.z - q.z * r.y,
-				y: q.w * r.y - q.x * r.z + q.y * r.w + q.z * r.x,
-				z: q.w * r.z + q.x * r.y - q.y * r.x + q.z * r.w
-			};
-  }
-
 }
