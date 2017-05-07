@@ -49,18 +49,19 @@ const characteristics = {
 }
 
 var _this;
+var state = {};
 
 class MyoWebBluetooth{
   constructor(name){
+
+    _this = this;
     this.name = name;
     this.services = services;
     this.characteristics = characteristics;
 
     this.standardServer;
 
-    this.state = {};
-
-    _this = this;
+    // this.state = {};
   }
 
   connect(){
@@ -101,9 +102,9 @@ class MyoWebBluetooth{
     requestedServices.filter((service) => {
       if(service.uuid == services.batteryService.uuid){
         // No need to pass in all requested characteristics for the battery service as the battery level is the only characteristic available.
-        this.getBatteryData(service, characteristics.batteryLevelCharacteristic, this.standardServer)
+        _this.getBatteryData(service, characteristics.batteryLevelCharacteristic, this.standardServer)
       } else if(service.uuid == services.controlService.uuid){
-        this.getControlService(requestedServices, requestedCharacteristics, this.standardServer);
+        _this.getControlService(requestedServices, requestedCharacteristics, this.standardServer);
       }
     })
   }
@@ -112,7 +113,7 @@ class MyoWebBluetooth{
     return server.getPrimaryService(service.uuid)
     .then(service => {
       console.log('getting battery service');
-      this.getBatteryLevel(reqChar.uuid, service)
+      _this.getBatteryLevel(reqChar.uuid, service)
     })
   }
 
@@ -120,12 +121,13 @@ class MyoWebBluetooth{
     return service.getCharacteristic(characteristic)
     .then(char => {
       console.log('getting battery level characteristic');
-      char.addEventListener('characteristicvaluechanged', this.handleBatteryLevelChanged);
+      char.addEventListener('characteristicvaluechanged', _this.handleBatteryLevelChanged);
       return char.readValue();
     })
     .then(value => {
       let batteryLevel = value.getUint8(0);
       console.log('> Battery Level is ' + batteryLevel + '%');
+      state.batteryLevel = batteryLevel;
     })
     .catch(error => {
       console.log('Error: ', error);
@@ -160,15 +162,15 @@ class MyoWebBluetooth{
 
         if(IMUService.length > 0){
           console.log('getting service: ', IMUService[0].name);
-          this.getIMUData(IMUService[0], IMUDataChar[0], server);
+          _this.getIMUData(IMUService[0], IMUDataChar[0], server);
         }
         if(EMGService.length > 0){
           console.log('getting service: ', EMGService[0].name);
-          this.getEMGData(EMGService[0], EMGDataChar[0], server);
+          _this.getEMGData(EMGService[0], EMGDataChar[0], server);
         }
         if(classifierService.length > 0){
           console.log('getting service: ', classifierService[0].name);
-          this.getClassifierData(classifierService[0], classifierEventChar[0], server);
+          _this.getClassifierData(classifierService[0], classifierEventChar[0], server);
         }
       })
       .catch(error =>{
@@ -178,9 +180,11 @@ class MyoWebBluetooth{
 
   handleBatteryLevelChanged(event){
     let batteryLevel = event.target.value.getUint8(0);
-    _this.state.batteryLevel = batteryLevel;
+    state.batteryLevel = batteryLevel;
 
-    _this.onStateChangeCallback(_this.state);
+    console.log('> Battery Level is ' + batteryLevel + '%');
+
+    _this.onStateChangeCallback(state);
   }
 
   handleIMUDataChanged(event){
@@ -207,6 +211,16 @@ class MyoWebBluetooth{
         y: orientationY,
         z: orientationZ,
         w: orientationW
+      },
+      accelerometer: {
+        x: accelerometerX,
+        y: accelerometerY,
+        z: accelerometerZ
+      },
+      gyroscope: {
+        x: gyroscopeX,
+        y: gyroscopeY,
+        z: gyroscopeZ
       }
     }
 
@@ -214,21 +228,17 @@ class MyoWebBluetooth{
 
     // var ori = _this.quatRotate(orientationOffset, data.orientation);
 
-    _this.state = {
+    state = {
       orientation: data.orientation,
-      accelerometer: [
-        accelerometerX, accelerometerY, accelerometerZ
-      ],
-      gyroscope: [
-        gyroscopeX, gyroscopeY, gyroscopeZ
-      ]
+      accelerometer: data.accelerometer,
+      gyroscope: data.gyroscope
     }
 
-    _this.onStateChangeCallback(_this.state);
+    _this.onStateChangeCallback(state);
   }
 
   onStateChangeCallback() {
-    return this.state
+    // return _this.state
   }
 
   getIMUData(service, characteristic, server){
@@ -239,7 +249,7 @@ class MyoWebBluetooth{
     })
     .then(char => {
       char.startNotifications().then(res => {
-        char.addEventListener('characteristicvaluechanged', this.handleIMUDataChanged);
+        char.addEventListener('characteristicvaluechanged', _this.handleIMUDataChanged);
       })
     })
   }
@@ -252,7 +262,7 @@ class MyoWebBluetooth{
     })
     .then(char => {
       char.startNotifications().then(res => {
-        char.addEventListener('characteristicvaluechanged', this.handleEMGDataChanged);
+        char.addEventListener('characteristicvaluechanged', _this.handleEMGDataChanged);
       })
     })
   }
@@ -265,7 +275,7 @@ class MyoWebBluetooth{
     })
     .then(char => {
       char.startNotifications().then(res => {
-        char.addEventListener('characteristicvaluechanged', this.handlePoseChanged);
+        char.addEventListener('characteristicvaluechanged', _this.handlePoseChanged);
       })
     })
   }
@@ -300,20 +310,20 @@ class MyoWebBluetooth{
         break;
     }
 
-    _this.state.armSynced = armSynced;
-    _this.state.myoLocked = myoLocked;
+    state.armSynced = armSynced;
+    state.myoLocked = myoLocked;
 
-    _this.onStateChangeCallback(_this.state);
+    _this.onStateChangeCallback(state);
   }
 
-  eventArmSynced(){
+  eventArmSynced(arm, x_direction){
     armType = (arm == 1) ? 'right' : ((arm == 2) ? 'left' : 'unknown');
     myoDirection = (x_direction == 1) ? 'wrist' : ((x_direction == 2) ? 'elbow' : 'unknown');
 
-    _this.state.armType = armType;
-    _this.state.myoDirection = myoDirection;
+    state.armType = armType;
+    state.myoDirection = myoDirection;
 
-    return _this.state;
+    _this.onStateChangeCallback(state);
   }
 
   getPoseEvent(code){
@@ -340,8 +350,8 @@ class MyoWebBluetooth{
     }
 
     if(pose){
-      _this.state.pose = pose;
-      _this.onStateChangeCallback(_this.state);
+      state.pose = pose;
+      _this.onStateChangeCallback(state);
     }
   }
 
@@ -373,13 +383,13 @@ class MyoWebBluetooth{
       ]
 
       // console.log('emg data: ', sample1);
-      _this.state.emgData = sample1;
+      state.emgData = sample1;
 
-      _this.onStateChangeCallback(_this.state);
+      _this.onStateChangeCallback(state);
   }
 
   onStateChange(callback){
-    this.onStateChangeCallback = callback;
+    _this.onStateChangeCallback = callback;
   }
 
   quatRotate(q, r){

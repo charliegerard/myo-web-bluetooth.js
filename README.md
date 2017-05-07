@@ -19,7 +19,7 @@ window.onload = function(){
   let button = document.getElementById("connect");
 
   button.onclick = function(e){
-    var myoController = new MyoWebBluetooth("Myo");
+    var myoController = new MyoWebBluetooth("My Myo");
     myoController.connect();
 
     myoController.onStateChange(function(state){

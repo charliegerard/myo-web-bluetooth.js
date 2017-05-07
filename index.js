@@ -23,14 +23,17 @@ window.onload = function(){
 	var timeout = null;
 
   button.onclick = function(e){
-    var myoController = new MyoWebBluetooth("My Myo");
+    var myoController = new MyoWebBluetooth("Myo");
     myoController.connect();
 
     window.quaternion = new THREE.Quaternion();
 
     myoController.onStateChange(function(state){
 
-      batteryLevel = state.batteryLevel + '%';
+      if(state.batteryLevel){
+        batteryLevel = state.batteryLevel + '%';
+      }
+
       accelerometerData = state.accelerometer;
       gyroscopeData = state.gyroscope;
       poseData = state.pose;
