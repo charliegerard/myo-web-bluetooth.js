@@ -2,6 +2,8 @@
 
 Connect to the Myo armband using Web Bluetooth.
 
+<img src="images/myo.gif">
+
 ### Steps:
 
 * Turn on your bluetooth.
